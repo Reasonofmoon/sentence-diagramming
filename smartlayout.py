@@ -20,7 +20,13 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 A4_W, A4_H = 8.27, 11.69
 MARGIN = 0.5
-INK = "#1a1a1a"
+try:
+    import theme as _t
+    INK = _t.INK
+    _PAGE_BG = _t.PAGE_BG
+except Exception:
+    INK = "#1a1a1a"
+    _PAGE_BG = "#FAF6EE"
 
 
 @dataclass
@@ -97,7 +103,7 @@ def render_pages(blocks, path, justify=True, gap_in=0.18, dpi=130,
 
     figs = []
     for page in pages:
-        fig = plt.figure(figsize=(A4_W, A4_H))
+        fig = plt.figure(figsize=(A4_W, A4_H), facecolor=_PAGE_BG)
         total_block_h = sum(h for _, h in page)
         n_gap = max(1, len(page) - 1)
         if justify and len(page) > 1:
@@ -120,12 +126,12 @@ def render_pages(blocks, path, justify=True, gap_in=0.18, dpi=130,
     if as_pdf:
         with PdfPages(path) as pdf:
             for f in figs:
-                pdf.savefig(f); plt.close(f)
+                pdf.savefig(f, facecolor=f.get_facecolor()); plt.close(f)
         return [path], len(pages)
     else:
         out = []
         for k, f in enumerate(figs):
             p = path.replace(".png", f"_p{k+1}.png")
-            f.savefig(p, dpi=dpi, facecolor="white"); plt.close(f)
+            f.savefig(p, dpi=dpi, facecolor=f.get_facecolor()); plt.close(f)
             out.append(p)
         return out, len(pages)

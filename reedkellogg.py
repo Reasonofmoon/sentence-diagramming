@@ -264,8 +264,19 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
-INK = "#1a1a1a"
-RK_LABEL_COL = "#888"
+try:
+    import theme as _t
+    INK = _t.INK
+    RK_LABEL_COL = _t.LABEL_COL
+    _BASELINE_COL = _t.BASELINE
+    _PREP_COL = _t.PREP_COL
+    _CONNECT_COL = _t.CONNECT_COL
+except Exception:  # 폴백: theme 미탑재 시 기존 색
+    INK = "#1a1a1a"
+    RK_LABEL_COL = "#888"
+    _BASELINE_COL = "#333"
+    _PREP_COL = "#2b7cd3"
+    _CONNECT_COL = "#c0392b"
 
 
 def _draw_mods_below(ax, x_center, y_base, mods, col=INK, dy_step=0.55):
@@ -309,26 +320,26 @@ def _draw_preps_below(ax, x_center, y_base, preps, dy_step=0.55):
         acc += w
     for xk, pp in zip(xs, preps):
         # 전치사: 사선 위에 표기
-        ax.plot([x_center, xk], [y_base, y_base - dy_step], color="#2b7cd3", lw=1.0)
+        ax.plot([x_center, xk], [y_base, y_base - dy_step], color=_PREP_COL, lw=1.0)
         ax.text(xk - 0.05, y_base - dy_step + 0.04, pp.prep, ha="right", va="top",
-                fontsize=7.3, color="#2b7cd3", fontstyle="italic")
+                fontsize=7.3, color=_PREP_COL, fontstyle="italic")
         ax.text(xk - 0.05, y_base - dy_step - 0.12, "전치사", ha="right", va="top",
                 fontsize=5.0, color=RK_LABEL_COL)
         # 목적어 수평선 (전치사 아래로 충분히 내림)
         oy = y_base - dy_step - 0.5
-        ax.plot([xk - 0.4, xk + 0.5], [oy, oy], color="#2b7cd3", lw=1.0)
+        ax.plot([xk - 0.4, xk + 0.5], [oy, oy], color=_PREP_COL, lw=1.0)
         ax.text(xk, oy + 0.04, pp.obj, ha="center", va="bottom",
                 fontsize=7.3, color=INK)
         ax.text(xk + 0.55, oy + 0.02, "전치사목적어", ha="left", va="bottom",
                 fontsize=4.8, color=RK_LABEL_COL)
         if pp.obj_mods:
-            _draw_mods_below(ax, xk, oy, pp.obj_mods, col="#2b7cd3", dy_step=0.4)
+            _draw_mods_below(ax, xk, oy, pp.obj_mods, col=_PREP_COL, dy_step=0.4)
 
 
 def _draw_clause(ax, cl, y, x0=0.5):
     """하나의 절을 baseline 행 y에 그린다. 반환: 주요 단어의 x좌표 dict."""
     positions = {}
-    baseline_col = "#333"
+    baseline_col = _BASELINE_COL
     # ---- 성분 x배치 (고정 간격) ----
     x_subj = x0 + 1.4
     x_div1 = x_subj + 1.3          # 주어|술어 구분선 (baseline 관통)
@@ -425,14 +436,14 @@ def draw_sentence_rk(ax, sentence_span, title=""):
         # 점선 세로 기둥은 이 절의 x0 바로 왼쪽에 세워 들여쓰기를 시각적으로 반영
         x_pillar = p["x0"] - 0.35
         ax.plot([x_pillar, x_pillar], [y + 0.05, y + row_gap - 0.05],
-                color="#c0392b", lw=1.1, ls=(0, (4, 3)), zorder=1)
+                color=_CONNECT_COL, lw=1.1, ls=(0, (4, 3)), zorder=1)
         # 자식 baseline과 연결 (가로 짧은 선)
-        ax.plot([x_pillar, p["x0"]], [y, y], color="#c0392b", lw=1.0,
+        ax.plot([x_pillar, p["x0"]], [y, y], color=_CONNECT_COL, lw=1.0,
                 ls=(0, (4, 3)), zorder=1)
         # 라벨은 기둥 오른쪽·자기 절 baseline 바로 위 → 들여쓰기·위 절과 안 겹침
         lbl = cl.connector_kind + (f" {cl.connector}" if cl.connector else "")
         ax.text(x_pillar + 0.12, y + 0.62, lbl, ha="left",
-                va="center", fontsize=6.2, color="#c0392b", fontweight="bold")
+                va="center", fontsize=6.2, color=_CONNECT_COL, fontweight="bold")
         ax.text(x_pillar + 0.12, y + 0.36,
                 f"→ {cl.attach_to} 수식/연결", ha="left", va="center",
                 fontsize=5.2, color="#999")

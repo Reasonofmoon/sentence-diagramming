@@ -13,11 +13,41 @@ import analyzer
 import diagram
 import a4report
 
-st.set_page_config(page_title="지문 구조 다이어그래머", layout="wide")
+st.set_page_config(page_title="지문 구조 다이어그래머 · 진국 분석탕",
+                   page_icon="🍲", layout="wide")
+
+# ---- K-Jumak(현대적 국밥 주막) 프리미엄 웜톤 테마 ----
+st.markdown("""
+<style>
+  :root{
+    --ttukbaegi:#4A2312; --dadaegi:#FF5722; --cheongyang:#6D8C7C;
+    --yuksu:#FAF6EE; --rice:#FFFFFF; --gold:#D4AF37;
+  }
+  .stApp{ background:var(--yuksu); }
+  h1,h2,h3{ color:var(--ttukbaegi) !important; font-family:'Noto Serif KR',serif; }
+  section[data-testid="stSidebar"]{ background:rgba(255,255,255,0.55);
+    backdrop-filter:blur(10px); border-right:1px solid rgba(74,35,18,0.12); }
+  .stButton>button, .stDownloadButton>button{
+    background:var(--dadaegi); color:#fff; border:none; border-radius:12px;
+    font-weight:700; box-shadow:0 0 14px rgba(255,87,34,0.22);
+    transition:all .2s ease; }
+  .stButton>button:hover, .stDownloadButton>button:hover{
+    transform:translateY(-1px) scale(1.02); }
+  .stTabs [data-baseweb="tab-list"]{ gap:6px; }
+  .stTabs [data-baseweb="tab"]{ background:rgba(255,255,255,0.6);
+    border-radius:12px 12px 0 0; }
+  .stTabs [aria-selected="true"]{ background:var(--rice);
+    border-bottom:3px solid var(--dadaegi); }
+  .jumak-card{ background:rgba(255,255,255,0.75); backdrop-filter:blur(12px);
+    border:1px solid rgba(74,35,18,0.15); border-radius:16px;
+    box-shadow:0 8px 32px rgba(74,35,18,0.07); padding:14px 18px; }
+</style>
+""", unsafe_allow_html=True)
 
 
 def _svg_wrap(svg: str) -> str:
-    return f"<div style='overflow:auto;background:white;'>{svg}</div>"
+    return ("<div class='jumak-card' style='overflow:auto;'>"
+            f"{svg}</div>")
 
 
 def _svg_height(result) -> int:

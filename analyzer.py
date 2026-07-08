@@ -59,17 +59,19 @@ DISCOURSE_MARKERS = {
 }
 
 # 관계 유형 → (한글명, 색상)
+# K-Jumak 웜톤: 인과·근거=청양 그린(양념), 대조=다대기 오렌지(고온),
+# 결론=수저 골드(프리미엄), 조건·예시=뚝배기 브라운 계열.
 RELATION_STYLE = {
-    "cause":      ("인과(근거)",   "#2b7cd3"),
-    "result":     ("결과",        "#2b7cd3"),
-    "addition":   ("첨가",        "#3c9a3c"),
-    "contrast":   ("대조",        "#c0392b"),
-    "concession": ("양보",        "#c0392b"),
-    "example":    ("예시",        "#8e44ad"),
-    "sequence":   ("순서·나열",   "#e0a800"),
-    "conclusion": ("결론·요약",   "#16a085"),
-    "condition":  ("조건",        "#d35400"),
-    "continue":   ("연속",        "#999999"),
+    "cause":      ("인과(근거)",   "#6D8C7C"),
+    "result":     ("결과",        "#6D8C7C"),
+    "addition":   ("첨가",        "#8AA596"),
+    "contrast":   ("대조",        "#FF5722"),
+    "concession": ("양보",        "#E5643C"),
+    "example":    ("예시",        "#A9743E"),
+    "sequence":   ("순서·나열",   "#D4AF37"),
+    "conclusion": ("결론·요약",   "#C79A2E"),
+    "condition":  ("조건",        "#C0562A"),
+    "continue":   ("연속",        "#8A6E5D"),
 }
 
 # 각 관계 유형이 나타내는 문장의 담화 역할(색상 분류용)
@@ -79,11 +81,12 @@ ROLE_BY_RELATION = {
     "sequence": "evidence", "conclusion": "claim", "condition": "evidence",
     "continue": "neutral",
 }
+# 역할 카드: (한글, 형광펜 배경 틴트, 테두리·라벨색) — K-Jumak 웜톤
 ROLE_STYLE = {
-    "claim":    ("주장·결론", "#fff3cd", "#e0a800"),
-    "evidence": ("근거·부연", "#d4edff", "#2b7cd3"),
-    "counter":  ("대조·반론", "#fde2e2", "#c0392b"),
-    "neutral":  ("서술",      "#f0f0f0", "#999999"),
+    "claim":    ("주장·결론", "#F7ECC9", "#C79A2E"),   # 수저 골드
+    "evidence": ("근거·부연", "#E4ECE6", "#6D8C7C"),   # 청양 그린(양념)
+    "counter":  ("대조·반론", "#FBE2D8", "#FF5722"),   # 다대기 오렌지(고온)
+    "neutral":  ("서술",      "#F1EADF", "#8A6E5D"),   # 육수/브라운 그레이
 }
 
 

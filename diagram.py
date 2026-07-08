@@ -7,6 +7,16 @@ from __future__ import annotations
 import html
 from analyzer import RELATION_STYLE, ROLE_STYLE
 
+try:
+    import theme as _t
+    _INK = _t.INK
+    _ARC = _t.DADAEGI_ORANGE   # 의존 아크(고온)
+    _SUB = _t.LABEL_COL
+except Exception:
+    _INK = "#1a1a1a"
+    _ARC = "#c0392b"
+    _SUB = "#999"
+
 # 주요 의존관계 라벨 한글 병기
 DEP_KR = {
     "nsubj": "주어", "nsubjpass": "주어(수동)", "dobj": "목적어", "obj": "목적어",
@@ -43,7 +53,7 @@ def render_sentence_svg(sent, width_per_token: int = 110,
              f"font-family='{font}' font-size='14'>"]
     parts.append(f"<defs><marker id='arrow' markerWidth='9' markerHeight='9' "
                  f"refX='7' refY='3' orient='auto' markerUnits='strokeWidth'>"
-                 f"<path d='M0,0 L7,3 L0,6 z' fill='#c0392b'/></marker></defs>")
+                 f"<path d='M0,0 L7,3 L0,6 z' fill='{_ARC}'/></marker></defs>")
 
     # 의존 호
     for t in toks:
@@ -58,10 +68,10 @@ def render_sentence_svg(sent, width_per_token: int = 110,
         lab = DEP_KR.get(t.dep, t.dep)
         parts.append(
             f"<path d='M{x1},{baseline-14} C{x1},{top} {x2},{top} {x2},{baseline-14}' "
-            f"fill='none' stroke='#c0392b' stroke-width='1.4' marker-end='url(#arrow)' "
+            f"fill='none' stroke='{_ARC}' stroke-width='1.4' marker-end='url(#arrow)' "
             f"opacity='0.85'/>")
         parts.append(
-            f"<text x='{mx}' y='{top+2}' text-anchor='middle' fill='#c0392b' "
+            f"<text x='{mx}' y='{top+2}' text-anchor='middle' fill='{_ARC}' "
             f"font-size='11' font-weight='bold'>{_esc(lab)}</text>")
 
     # root 표시
@@ -74,7 +84,7 @@ def render_sentence_svg(sent, width_per_token: int = 110,
     # 단어 + 품사
     for i, t in enumerate(toks):
         parts.append(f"<text x='{xs[i]}' y='{baseline}' text-anchor='middle' "
-                     f"font-weight='bold' fill='#1a1a1a'>{_esc(t.text)}</text>")
+                     f"font-weight='bold' fill='{_INK}'>{_esc(t.text)}</text>")
         parts.append(f"<text x='{xs[i]}' y='{baseline+18}' text-anchor='middle' "
                      f"fill='#999' font-size='10'>{_esc(t.pos)}</text>")
     parts.append("</svg>")
@@ -122,7 +132,7 @@ def render_flow_svg(analysis, font: str = "sans-serif", max_chars: int = 70) -> 
         txt = sents[i].text
         if len(txt) > max_chars:
             txt = txt[:max_chars - 1] + "…"
-        parts.append(f"<text x='{left+16}' y='{y+box_h/2+5}' fill='#1a1a1a'>"
+        parts.append(f"<text x='{left+16}' y='{y+box_h/2+5}' fill='{_INK}'>"
                      f"{_esc(txt)}</text>")
         # 화살표 + 관계 라벨
         if i in link_by_dst:

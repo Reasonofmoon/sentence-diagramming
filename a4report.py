@@ -46,7 +46,19 @@ _setup_font()
 A4_W, A4_H = 8.27, 11.69
 MARGIN = 0.55            # 인치
 CLAIM_C = ROLE_STYLE["claim"]
-INK = "#1a1a1a"
+try:
+    import theme as _t
+    INK = _t.INK
+    _PAGE_BG = _t.PAGE_BG
+    _NUC_COL = _t.SUJEO_GOLD       # RST 핵(N)·중심 주장
+    _SAT_COL = _t.DADAEGI_ORANGE   # RST 위성(S)
+    _ARC_COL = _t.DADAEGI_ORANGE   # 의존 아크(고온)
+except Exception:
+    INK = "#1a1a1a"
+    _PAGE_BG = "#FAF6EE"
+    _NUC_COL = "#e0a800"
+    _SAT_COL = "#c0392b"
+    _ARC_COL = "#c0392b"
 
 
 # ============================================================
@@ -56,7 +68,7 @@ def _draw_sentence(ax, sent, template="teacher"):
     """template='teacher': 관계 라벨 전부. 'student': 라벨을 빈칸(____)으로 두어
     학습자가 직접 채우는 워크시트 형태 (아크·화살표는 유지, 색은 옅게)."""
     student = (template == "student")
-    arc_col = "#b0b0b0" if student else "#c0392b"
+    arc_col = "#b0b0b0" if student else _ARC_COL
     toks = sent.tokens
     n = len(toks)
     ax.set_xlim(0, max(n, 1))
@@ -91,7 +103,7 @@ def _draw_sentence(ax, sent, template="teacher"):
         lab = "____" if student else DEP_KR.get(t.dep, t.dep)
         ax.text((x1 + x2) / 2, baseline + h + 0.02, lab, ha="center",
                 va="bottom", fontsize=6.2,
-                color="#999" if student else "#c0392b", fontweight="bold")
+                color="#999" if student else _ARC_COL, fontweight="bold")
 
     # root 마커
     rx = xs[sent.root]
@@ -223,15 +235,15 @@ def _draw_rst_tree(ax, analysis, max_chars=42, template="teacher"):
 
         # 스파인 → 잎 연결선: 핵=굵은 수평, 위성=가는 사선(아래로 매닮)
         if is_sat:
-            ax.plot([spine_x, leaf_x], [y + 0.18, y], color="#c0392b",
+            ax.plot([spine_x, leaf_x], [y + 0.18, y], color=_SAT_COL,
                     lw=1.0, ls="--", zorder=1)
             tag = "위성(S)"
-            tagcol = "#c0392b"
+            tagcol = _SAT_COL
         else:
-            ax.plot([spine_x, leaf_x], [y, y], color="#2b7cd3",
+            ax.plot([spine_x, leaf_x], [y, y], color=_NUC_COL,
                     lw=2.2, zorder=1)
             tag = "핵(N)"
-            tagcol = "#2b7cd3"
+            tagcol = _NUC_COL
 
         # EDU 잎 박스
         ax.add_patch(FancyBboxPatch((leaf_x, y - 0.36), leaf_w, 0.72,
@@ -245,7 +257,7 @@ def _draw_rst_tree(ax, analysis, max_chars=42, template="teacher"):
 
         # 관계 라벨 (핵/위성 태그 + 관계명)
         relkr, relcol = RELATION_STYLE.get(rel, ("중심", "#888")) \
-            if rel != "root" else ("중심 주장", "#e0a800")
+            if rel != "root" else ("중심 주장", _NUC_COL)
         if student:
             lbl = f"{tag} · ____"
         else:
@@ -352,7 +364,7 @@ def _rk_sentence_pages(figs, sents, title, template, MARGIN):
 
     npages = len(pages)
     for pg, chunk in enumerate(pages):
-        fig = plt.figure(figsize=(A4_W, A4_H))
+        fig = plt.figure(figsize=(A4_W, A4_H), facecolor=_PAGE_BG)
         fig.subplots_adjust(left=MARGIN / A4_W, right=1 - MARGIN / A4_W,
                             top=1 - MARGIN / A4_H, bottom=MARGIN / A4_H)
         # 각 문장 높이를 절 수에 비례 배분하되 단일 절도 넉넉히(최소 2)
@@ -383,7 +395,7 @@ def _build(analysis, title, subtitle, template="teacher",
 
     # ============ COMPACT: 1페이지 (흐름 + 문장 요약) ============
     if layout == "compact":
-        fig = plt.figure(figsize=(A4_W, A4_H))
+        fig = plt.figure(figsize=(A4_W, A4_H), facecolor=_PAGE_BG)
         fig.subplots_adjust(left=MARGIN / A4_W, right=1 - MARGIN / A4_W,
                             top=1 - MARGIN / A4_H, bottom=MARGIN / A4_H)
         # 헤더 / 흐름 / 문장 스택
@@ -423,7 +435,7 @@ def _build(analysis, title, subtitle, template="teacher",
         return figs
 
     # ============ FULL: 페이지 1 = 흐름 + 범례 ============
-    fig = plt.figure(figsize=(A4_W, A4_H))
+    fig = plt.figure(figsize=(A4_W, A4_H), facecolor=_PAGE_BG)
     fig.subplots_adjust(left=MARGIN / A4_W, right=1 - MARGIN / A4_W,
                         top=1 - MARGIN / A4_H, bottom=MARGIN / A4_H)
     gs = fig.add_gridspec(3, 1, height_ratios=[0.12, 0.62, 0.26], hspace=0.12)
@@ -443,7 +455,7 @@ def _build(analysis, title, subtitle, template="teacher",
     npages = (n + per_page - 1) // per_page
     for pg in range(npages):
         chunk = sents[pg * per_page:(pg + 1) * per_page]
-        fig = plt.figure(figsize=(A4_W, A4_H))
+        fig = plt.figure(figsize=(A4_W, A4_H), facecolor=_PAGE_BG)
         fig.subplots_adjust(left=MARGIN / A4_W, right=1 - MARGIN / A4_W,
                             top=1 - MARGIN / A4_H, bottom=MARGIN / A4_H)
         gs = fig.add_gridspec(per_page + 1, 1,
@@ -493,7 +505,7 @@ def build_a4_pdf(analysis, path="report.pdf",
                   sentence_style=sentence_style)
     with PdfPages(path) as pdf:
         for f in figs:
-            pdf.savefig(f)
+            pdf.savefig(f, facecolor=f.get_facecolor())
             plt.close(f)
     return path
 
@@ -512,7 +524,7 @@ def build_a4_png(analysis, path="report.png",
     out = []
     for i, f in enumerate(figs):
         p = path.replace(".png", f"_p{i+1}.png")
-        f.savefig(p, dpi=dpi, facecolor="white")
+        f.savefig(p, dpi=dpi, facecolor=f.get_facecolor())
         plt.close(f)
         out.append(p)
     return out

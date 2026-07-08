@@ -274,7 +274,8 @@ def _draw_mods_below(ax, x_center, y_base, mods, col=INK, dy_step=0.55):
     if not mods:
         return
     m = len(mods)
-    # 각 수식어 폭(글자수 기반) → 누적 배치
+    # 각 수식어 폭(글자수 기반) → 누적 배치. 사선은 항상 좌상→우하(\) 방향.
+    slant_dx = 0.5
     widths = [max(0.75, 0.11 * len(mod.text) + 0.35) for mod in mods]
     total_w = sum(widths)
     xs = []
@@ -283,12 +284,13 @@ def _draw_mods_below(ax, x_center, y_base, mods, col=INK, dy_step=0.55):
         xs.append(x_center + acc + w / 2)
         acc += w
     for xk, mod in zip(xs, mods):
-        # 사선
-        ax.plot([x_center, xk - 0.05], [y_base, y_base - dy_step],
-                color=col, lw=1.0)
-        ax.text(xk - 0.05, y_base - dy_step - 0.06, mod.text, ha="center",
+        # 좌상(baseline) → 우하(단어)로 내려가는 사선
+        x_top = xk - slant_dx / 2
+        x_bot = xk + slant_dx / 2
+        ax.plot([x_top, x_bot], [y_base, y_base - dy_step], color=col, lw=1.0)
+        ax.text(x_bot, y_base - dy_step - 0.06, mod.text, ha="center",
                 va="top", fontsize=7.5, color=INK, rotation=0)
-        ax.text(xk - 0.05, y_base - dy_step - 0.30, mod.kind, ha="center",
+        ax.text(x_bot, y_base - dy_step - 0.30, mod.kind, ha="center",
                 va="top", fontsize=5.3, color=RK_LABEL_COL)
 
 
@@ -400,10 +402,16 @@ def draw_sentence_rk(ax, sentence_span, title=""):
     # 각 절을 위→아래 행에 배치
     ypos = {}
     pos_by_clause = {}
+    INDENT = 1.2                      # 종속·관계절 들여쓰기 폭
     for i, cl in enumerate(clauses):
         y = total_h - (i + 0.7) * row_gap
+        # 등위절은 주절과 같은 시작점, 종속·관계절은 안쪽에서 시작 → 위계 구별
+        if cl.depth == 0 or cl.connector_kind == "등위접속사":
+            x0 = 0.5
+        else:                        # 종속접속사 · 관계대명사
+            x0 = 0.5 + INDENT
         ypos[id(cl)] = y
-        pos_by_clause[id(cl)] = _draw_clause(ax, cl, y)
+        pos_by_clause[id(cl)] = _draw_clause(ax, cl, y, x0=x0)
 
     # 종속/관계/등위 연결자 (점선 + 라벨)로 모절에 연결
     maxright = max(p["right"] for p in pos_by_clause.values())
@@ -415,11 +423,12 @@ def draw_sentence_rk(ax, sentence_span, title=""):
             continue
         y = ypos[id(cl)]
         p = pos_by_clause[id(cl)]
-        # 자식 baseline 왼쪽 끝 → 위 행 baseline 왼쪽 끝까지 수직 점선
-        ax.plot([x_link, x_link], [y + 0.05, y + row_gap - 0.05],
+        # 점선 세로 기둥은 이 절의 x0 바로 왼쪽에 세워 들여쓰기를 시각적으로 반영
+        x_pillar = min(x_link + 0.0, p["x0"] - 0.35)
+        ax.plot([x_pillar, x_pillar], [y + 0.05, y + row_gap - 0.05],
                 color="#c0392b", lw=1.1, ls=(0, (4, 3)), zorder=1)
         # 자식 baseline과 연결 (가로 짧은 선)
-        ax.plot([x_link, p["x0"]], [y, y], color="#c0392b", lw=1.0,
+        ax.plot([x_pillar, p["x0"]], [y, y], color="#c0392b", lw=1.0,
                 ls=(0, (4, 3)), zorder=1)
         # 라벨은 자기 절(자식 baseline) 바로 위에 고정 → 위 절 라벨과 안 겹침
         lbl = cl.connector_kind + (f" {cl.connector}" if cl.connector else "")

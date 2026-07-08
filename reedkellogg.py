@@ -416,25 +416,24 @@ def draw_sentence_rk(ax, sentence_span, title=""):
     # 종속/관계/등위 연결자 (점선 + 라벨)로 모절에 연결
     maxright = max(p["right"] for p in pos_by_clause.values())
     ax.set_xlim(-0.6, maxright + 0.5)
-    # 연결자는 왼쪽 여백(x_link)에 수직 점선으로 → 본문 수식어와 절대 겹치지 않음
-    x_link = 0.05
+    # 연결자는 각 절 baseline 왼쪽에 수직 점선으로 → 본문 수식어와 겹치지 않음
     for cl in clauses:
         if cl.depth == 0:
             continue
         y = ypos[id(cl)]
         p = pos_by_clause[id(cl)]
         # 점선 세로 기둥은 이 절의 x0 바로 왼쪽에 세워 들여쓰기를 시각적으로 반영
-        x_pillar = min(x_link + 0.0, p["x0"] - 0.35)
+        x_pillar = p["x0"] - 0.35
         ax.plot([x_pillar, x_pillar], [y + 0.05, y + row_gap - 0.05],
                 color="#c0392b", lw=1.1, ls=(0, (4, 3)), zorder=1)
         # 자식 baseline과 연결 (가로 짧은 선)
         ax.plot([x_pillar, p["x0"]], [y, y], color="#c0392b", lw=1.0,
                 ls=(0, (4, 3)), zorder=1)
-        # 라벨은 자기 절(자식 baseline) 바로 위에 고정 → 위 절 라벨과 안 겹침
+        # 라벨은 기둥 오른쪽·자기 절 baseline 바로 위 → 들여쓰기·위 절과 안 겹침
         lbl = cl.connector_kind + (f" {cl.connector}" if cl.connector else "")
-        ax.text(x_link + 0.12, y + 0.62, lbl, ha="left",
+        ax.text(x_pillar + 0.12, y + 0.62, lbl, ha="left",
                 va="center", fontsize=6.2, color="#c0392b", fontweight="bold")
-        ax.text(x_link + 0.12, y + 0.36,
+        ax.text(x_pillar + 0.12, y + 0.36,
                 f"→ {cl.attach_to} 수식/연결", ha="left", va="center",
                 fontsize=5.2, color="#999")
     if title:
